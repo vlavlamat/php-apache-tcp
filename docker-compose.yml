@@ -1,0 +1,66 @@
+services:
+  # PHP-FPM
+  php-apache-tcp:
+    build:
+      context: ./docker
+      dockerfile: php.Dockerfile
+    platform: linux/arm64/v8
+    container_name: php-apache-tcp
+    restart: unless-stopped
+    volumes:
+      - ./public:/var/www/html
+    networks:
+      - php-apache-tcp-network
+
+  # Apache Web Server
+  apache-tcp:
+    image: httpd:2.4-alpine
+    platform: linux/arm64/v8
+    container_name: apache-tcp
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - ./public:/var/www/html/
+      - ./apache/httpd.conf:/usr/local/apache2/conf/httpd.conf
+    depends_on:
+      - php-apache-tcp
+    networks:
+      - php-apache-tcp-network
+
+  # MySQL Database
+  mysql-apache-tcp:
+    image: mysql:8.4
+    platform: linux/arm64/v8
+    container_name: mysql-apache-tcp
+    restart: unless-stopped
+    env_file:
+      - ./env/.env
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - php-apache-tcp-network
+
+    # phpMyAdmin
+  phpmyadmin:
+    image: phpmyadmin
+    platform: linux/arm64/v8
+    container_name: phpmyadmin
+    restart: unless-stopped
+    env_file:
+      - ./env/.env
+    ports:
+      - "8080:80"
+    depends_on:
+      - mysql-apache-tcp
+    networks:
+      - php-apache-tcp-network
+
+volumes:
+  mysql-data:
+
+networks:
+  php-apache-tcp-network:
+    driver: bridge
