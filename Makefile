@@ -115,10 +115,10 @@ info: ## Показать информацию о проекте
 	@echo "  • phpMyAdmin"
 	@echo ""
 	@echo "$(GREEN)Структура:$(NC)"
-	@echo "  • public/    - публичные файлы (DocumentRoot)"
-	@echo "  • src/       - исходный код приложения"
-	@echo "  • env/.env   - переменные окружения"
-	@echo "  • apache/    - конфигурация Apache"
+	@echo "  • public/           - публичные файлы (DocumentRoot)"
+	@echo "  • config/apache/    - конфигурация Apache"
+	@echo "  • config/php/       - конфигурация PHP (php.ini)"
+	@echo "  • env/.env          - переменные окружения"
 	@echo ""
 	@echo "$(GREEN)Порты:$(NC)"
 	@echo "  • 80   - Apache HTTP Server"
@@ -158,7 +158,6 @@ dev-reset: clean-all build up ## Сброс среды разработки
 permissions: ## Исправить права доступа к файлам проекта
 	@echo "$(YELLOW)Исправление прав доступа...$(NC)"
 	chmod -R 755 public/
-	chmod -R 755 src/
 	@echo "$(GREEN)✓ Права доступа исправлены$(NC)"
 
 # Composer команды
