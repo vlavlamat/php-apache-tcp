@@ -9,6 +9,7 @@ services:
     restart: unless-stopped
     volumes:
       - ./public:/var/www/html
+      - ./config/php/php.ini:/usr/local/etc/php/php.ini
     networks:
       - php-apache-tcp-network
 
@@ -22,7 +23,7 @@ services:
       - "80:80"
     volumes:
       - ./public:/var/www/html/
-      - ./apache/httpd.conf:/usr/local/apache2/conf/httpd.conf
+      - ./config/apache/httpd.conf:/usr/local/apache2/conf/httpd.conf
     depends_on:
       - php-apache-tcp
     networks:
