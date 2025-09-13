@@ -4,21 +4,25 @@ services:
     build:
       context: ./docker
       dockerfile: php.Dockerfile
-    platform: linux/arm64/v8
     container_name: php-apache-tcp
     restart: unless-stopped
     env_file:
       - ./env/.env
     volumes:
       - ./public:/var/www/html
-      - ./config/php/php.ini:/usr/local/etc/php/conf.d/local.ini
+      - ./config/php/php.ini:/usr/local/etc/php/conf.d/local.ini:ro
     networks:
       - php-apache-tcp-network
+    healthcheck:
+      test: [ "CMD", "cgi-fcgi", "-bind", "-connect", "localhost:9000" ]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
 
   # Apache Web Server
   apache-tcp:
     image: httpd:2.4-alpine
-    platform: linux/arm64/v8
     container_name: apache-tcp
     restart: unless-stopped
     ports:
@@ -26,15 +30,21 @@ services:
     volumes:
       - ./public:/var/www/html/
       - ./config/apache/httpd.conf:/usr/local/apache2/conf/httpd.conf
-    depends_on:
-      - php-apache-tcp
     networks:
       - php-apache-tcp-network
+    healthcheck:
+      test: [ "CMD", "wget", "-q", "-O", "-", "http://localhost/" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    depends_on:
+      php-apache-tcp:
+        condition: service_healthy
 
   # MySQL Database
   mysql-apache-tcp:
     image: mysql:8.4
-    platform: linux/arm64/v8
     container_name: mysql-apache-tcp
     restart: unless-stopped
     env_file:
@@ -45,11 +55,16 @@ services:
       - mysql-data:/var/lib/mysql
     networks:
       - php-apache-tcp-network
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p$$MYSQL_ROOT_PASSWORD"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
 
     # phpMyAdmin
   phpmyadmin:
     image: phpmyadmin
-    platform: linux/arm64/v8
     container_name: phpmyadmin
     restart: unless-stopped
     env_file:
@@ -60,6 +75,12 @@ services:
       - mysql-apache-tcp
     networks:
       - php-apache-tcp-network
+    healthcheck:
+      test: [ "CMD", "wget", "-q", "-O", "-", "http://localhost/" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
 
 volumes:
   mysql-data:
