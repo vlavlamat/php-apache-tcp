@@ -7,9 +7,11 @@ services:
     platform: linux/arm64/v8
     container_name: php-apache-tcp
     restart: unless-stopped
+    env_file:
+      - ./env/.env
     volumes:
       - ./public:/var/www/html
-      - ./config/php/php.ini:/usr/local/etc/php/php.ini
+      - ./config/php/php.ini:/usr/local/etc/php/conf.d/local.ini
     networks:
       - php-apache-tcp-network
 

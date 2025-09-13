@@ -3,13 +3,21 @@ FROM php:8.4-fpm-alpine
 # Устанавливаем нужные пакеты
 RUN apk add --no-cache \
     curl \
+    $PHPIZE_DEPS \
     libpng-dev \
+    libjpeg-turbo-dev \
+    freetype-dev \
     libxml2-dev \
     zip \
     unzip \
     git \
     oniguruma-dev \
-    libzip-dev
+    libzip-dev \
+    linux-headers \
+    fcgi \
+    && pecl channel-update pecl.php.net \
+    && pecl install xdebug \
+    && docker-php-ext-enable xdebug
 
 # Устанавливаем расширения PHP
 RUN docker-php-ext-install \

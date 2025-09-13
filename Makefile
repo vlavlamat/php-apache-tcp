@@ -71,6 +71,12 @@ rebuild: ## Пересборка образов с очисткой кэша
 	docker-compose build --no-cache
 	@echo "$(GREEN)✓ Образы пересобраны$(NC)"
 
+xdebug-up: ## Запуск с включенным Xdebug (через docker-compose.xdebug.yml)
+	docker-compose -f docker-compose.yml -f docker-compose.xdebug.yml up -d
+
+xdebug-down: ## Остановить стек, запущенный с Xdebug
+	docker-compose -f docker-compose.yml -f docker-compose.xdebug.yml down
+
 logs: ## Просмотр логов всех сервисов
 	docker-compose logs -f
 
