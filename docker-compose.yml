@@ -72,7 +72,8 @@ services:
     ports:
       - "8080:80"
     depends_on:
-      - mysql-httpd-tcp
+      mysql-httpd-tcp:
+        condition: service_healthy
     networks:
       - php-httpd-tcp-network
     healthcheck:
