@@ -12,7 +12,7 @@ services:
       - ./public:/var/www/html
       - ./config/php/php.ini:/usr/local/etc/php/conf.d/local.ini:ro
     networks:
-      - php-apache-tcp-network
+      - php-httpd-tcp-network
     healthcheck:
       test: [ "CMD", "cgi-fcgi", "-bind", "-connect", "localhost:9000" ]
       interval: 10s
@@ -21,17 +21,17 @@ services:
       start_period: 10s
 
   # Apache Web Server
-  apache-tcp:
+  httpd-tcp:
     image: httpd:2.4-alpine
-    container_name: apache-tcp
+    container_name: httpd-tcp
     restart: unless-stopped
     ports:
       - "80:80"
     volumes:
       - ./public:/var/www/html/
-      - ./config/apache/httpd.conf:/usr/local/apache2/conf/httpd.conf
+      - ./config/httpd/httpd.conf:/usr/local/apache2/conf/httpd.conf
     networks:
-      - php-apache-tcp-network
+      - php-httpd-tcp-network
     healthcheck:
       test: [ "CMD", "wget", "-q", "-O", "-", "http://localhost/" ]
       interval: 10s
@@ -43,9 +43,9 @@ services:
         condition: service_healthy
 
   # MySQL Database
-  mysql-apache-tcp:
+  mysql-httpd-tcp:
     image: mysql:8.4
-    container_name: mysql-apache-tcp
+    container_name: mysql-httpd-tcp
     restart: unless-stopped
     env_file:
       - ./env/.env
@@ -54,7 +54,7 @@ services:
     volumes:
       - mysql-data:/var/lib/mysql
     networks:
-      - php-apache-tcp-network
+      - php-httpd-tcp-network
     healthcheck:
       test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p$$MYSQL_ROOT_PASSWORD"]
       interval: 10s
@@ -72,9 +72,9 @@ services:
     ports:
       - "8080:80"
     depends_on:
-      - mysql-apache-tcp
+      - mysql-httpd-tcp
     networks:
-      - php-apache-tcp-network
+      - php-httpd-tcp-network
     healthcheck:
       test: [ "CMD", "wget", "-q", "-O", "-", "http://localhost/" ]
       interval: 10s
@@ -86,5 +86,5 @@ volumes:
   mysql-data:
 
 networks:
-  php-apache-tcp-network:
+  php-httpd-tcp-network:
     driver: bridge

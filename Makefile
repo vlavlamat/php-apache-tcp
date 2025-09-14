@@ -12,7 +12,7 @@
 # make clean     - Полная очистка
 # ==========================================
 
-.PHONY: help up down restart build rebuild logs logs-php logs-apache logs-mysql logs-phpmyadmin status shell-php shell-apache shell-mysql clean clean-all setup info test
+.PHONY: help up down restart build rebuild logs logs-php logs-httpd logs-mysql logs-phpmyadmin status shell-php shell-httpd shell-mysql clean clean-all setup info test
 
 # Цвета для вывода
 YELLOW=\033[0;33m
@@ -83,11 +83,11 @@ logs: ## Просмотр логов всех сервисов
 logs-php: ## Просмотр логов PHP-FPM
 	docker-compose logs -f php-apache-tcp
 
-logs-apache: ## Просмотр логов Apache
-	docker-compose logs -f apache-tcp
+logs-httpd: ## Просмотр логов Apache
+	docker-compose logs -f httpd-tcp
 
 logs-mysql: ## Просмотр логов MySQL
-	docker-compose logs -f mysql-apache-tcp
+	docker-compose logs -f mysql-httpd-tcp
 
 logs-phpmyadmin: ## Просмотр логов phpMyAdmin
 	docker-compose logs -f phpmyadmin
@@ -99,11 +99,11 @@ status: ## Показать статус контейнеров
 shell-php: ## Подключиться к контейнеру PHP
 	docker-compose exec php-apache-tcp sh
 
-shell-apache: ## Подключиться к контейнеру Apache
-	docker-compose exec apache-tcp sh
+shell-httpd: ## Подключиться к контейнеру Apache
+	docker-compose exec httpd-tcp sh
 
 shell-mysql: ## Подключиться к MySQL CLI
-	docker-compose exec mysql-apache-tcp mysql -u root -p
+	docker-compose exec mysql-httpd-tcp mysql -u root -p
 
 info: ## Показать информацию о проекте
 	@echo "$(YELLOW)PHP-Apache-TCP Development Environment$(NC)"
@@ -116,7 +116,7 @@ info: ## Показать информацию о проекте
 	@echo ""
 	@echo "$(GREEN)Структура:$(NC)"
 	@echo "  • public/           - публичные файлы (DocumentRoot)"
-	@echo "  • config/apache/    - конфигурация Apache"
+	@echo "  • config/httpd/    - конфигурация Apache"
 	@echo "  • config/php/       - конфигурация PHP (php.ini)"
 	@echo "  • env/.env          - переменные окружения"
 	@echo ""

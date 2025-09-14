@@ -8,8 +8,8 @@
 
 Сервисы docker-compose.yml:
 - PHP-FPM 8.4 (контейнер php-apache-tcp) — выполняет PHP, порт 9000 (внутренний), Xdebug установлен, управляется переменными окружения.
-- Apache HTTP Server 2.4 (контейнер apache-tcp) — отдаёт статику и проксирует .php в PHP-FPM; доступен на http://localhost:80.
-- MySQL 8.4 (контейнер mysql-apache-tcp) — база данных на localhost:3306, данные в именованном томе mysql-data.
+- Apache HTTP Server 2.4 (контейнер httpd-tcp) — отдаёт статику и проксирует .php в PHP-FPM; доступен на http://localhost:80.
+- MySQL 8.4 (контейнер mysql-httpd-tcp) — база данных на localhost:3306, данные в именованном томе mysql-data.
 - phpMyAdmin (контейнер phpmyadmin) — веб-интерфейс MySQL на http://localhost:8080.
 
 Здоровье (healthchecks):
@@ -18,7 +18,7 @@
 - MySQL — mysqladmin ping.
 - phpMyAdmin — HTTP-запрос к http://localhost/.
 
-Порядок старта: apache-tcp ожидает, когда php-apache-tcp станет healthy.
+Порядок старта: httpd-tcp ожидает, когда php-apache-tcp станет healthy.
 
 ## Структура репозитория (актуальная)
 
@@ -27,7 +27,7 @@ php-apache-tcp/
 ├── Makefile
 ├── README.md
 ├── config/
-│   ├── apache/
+│   ├── httpd/
 │   │   └── httpd.conf          # Конфиг Apache (проксирование в PHP-FPM)
 │   └── php/
 │       └── php.ini             # Конфиг PHP (dev-настройки + Xdebug через env)
@@ -62,7 +62,7 @@ php-apache-tcp/
    - make up (или docker compose up -d)
 4) Проверьте доступность:
    - Web: http://localhost
-   - phpMyAdmin: http://localhost:8080 (сервер mysql-apache-tcp)
+   - phpMyAdmin: http://localhost:8080 (сервер mysql-httpd-tcp)
    - MySQL: localhost:3306
 
 Полезные команды Makefile:
@@ -79,7 +79,7 @@ PHP (config/php/php.ini):
 - opcache включён, validate_timestamps=1 (код обновляется сразу)
 - Xdebug управляется через переменные окружения (см. ниже)
 
-Apache (config/apache/httpd.conf):
+Apache (config/httpd/httpd.conf):
 - mod_proxy_fcgi проксирует .php в php-apache-tcp:9000
 - AllowOverride All в /var/www/html — можно использовать .htaccess (например, mod_rewrite)
 
@@ -94,7 +94,7 @@ Docker-образ PHP (docker/php.Dockerfile):
 - MYSQL_ROOT_PASSWORD — пароль root для MySQL
 - MYSQL_DATABASE — имя создаваемой БД
 - MYSQL_USER, MYSQL_PASSWORD — пользователь и его пароль
-- PMA_HOST=mysql-apache-tcp, PMA_ARBITRARY=1 — для phpMyAdmin
+- PMA_HOST=mysql-httpd-tcp, PMA_ARBITRARY=1 — для phpMyAdmin
 
 ## Xdebug: как включить
 
@@ -122,7 +122,7 @@ IDE: подключение по Xdebug 3 на порт 9003, client_host=host.d
 
 ```
 <?php
-$host = 'mysql-apache-tcp';
+$host = 'mysql-httpd-tcp';
 $dbname = 'your-db-name';
 $user = 'your-user';
 $pass = 'your-user-password';
@@ -135,7 +135,7 @@ $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $user, $pass);
 - Измените привязку в docker-compose.yml, например 8080:80 для Apache.
 
 Контейнеры не стартуют по порядку:
-- Проверьте healthchecks командой docker compose ps; apache-tcp зависит от healthy php-apache-tcp.
+- Проверьте healthchecks командой docker compose ps; httpd-tcp зависит от healthy php-apache-tcp.
 
 Xdebug не подключается:
 - Проверьте, что используете порт 9003 в IDE, и что XDEBUG_MODE/START заданы (compose.xdebug.yml или env/.env).
