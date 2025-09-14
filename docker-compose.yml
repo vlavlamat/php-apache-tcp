@@ -1,10 +1,10 @@
 services:
   # PHP-FPM
-  php-apache-tcp:
+  php-httpd-tcp:
     build:
       context: ./docker
       dockerfile: php.Dockerfile
-    container_name: php-apache-tcp
+    container_name: php-httpd-tcp
     restart: unless-stopped
     env_file:
       - ./env/.env
@@ -39,7 +39,7 @@ services:
       retries: 5
       start_period: 10s
     depends_on:
-      php-apache-tcp:
+      php-httpd-tcp:
         condition: service_healthy
 
   # MySQL Database

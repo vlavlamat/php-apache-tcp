@@ -1,4 +1,4 @@
-# PHP-Apache-TCP — учебный стек на Docker (современная замена XAMPP/MAMP/Open Server)
+# PHP-Httpd-TCP — учебный стек на Docker (современная замена XAMPP/MAMP/Open Server)
 
 Простая, воспроизводимая и «говорящая» среда для изучения PHP и его экосистемы. Стек собирается из контейнеров Docker и предназначен для локальных экспериментов.
 
@@ -7,7 +7,7 @@
 ## Что внутри (архитектура)
 
 Сервисы docker-compose.yml:
-- PHP-FPM 8.4 (контейнер php-apache-tcp) — выполняет PHP, порт 9000 (внутренний), Xdebug установлен, управляется переменными окружения.
+- PHP-FPM 8.4 (контейнер php-httpd-tcp) — выполняет PHP, порт 9000 (внутренний), Xdebug установлен, управляется переменными окружения.
 - Apache HTTP Server 2.4 (контейнер httpd-tcp) — отдаёт статику и проксирует .php в PHP-FPM; доступен на http://localhost:80.
 - MySQL 8.4 (контейнер mysql-httpd-tcp) — база данных на localhost:3306, данные в именованном томе mysql-data.
 - phpMyAdmin (контейнер phpmyadmin) — веб-интерфейс MySQL на http://localhost:8080.
@@ -18,12 +18,12 @@
 - MySQL — mysqladmin ping.
 - phpMyAdmin — HTTP-запрос к http://localhost/.
 
-Порядок старта: httpd-tcp ожидает, когда php-apache-tcp станет healthy.
+Порядок старта: httpd-tcp ожидает, когда php-httpd-tcp станет healthy.
 
 ## Структура репозитория (актуальная)
 
 ```
-php-apache-tcp/
+php-httpd-tcp/
 ├── Makefile
 ├── README.md
 ├── config/
@@ -80,7 +80,7 @@ PHP (config/php/php.ini):
 - Xdebug управляется через переменные окружения (см. ниже)
 
 Apache (config/httpd/httpd.conf):
-- mod_proxy_fcgi проксирует .php в php-apache-tcp:9000
+- mod_proxy_fcgi проксирует .php в php-httpd-tcp:9000
 - AllowOverride All в /var/www/html — можно использовать .htaccess (например, mod_rewrite)
 
 Docker-образ PHP (docker/php.Dockerfile):
@@ -108,7 +108,7 @@ Docker-образ PHP (docker/php.Dockerfile):
 Вариант B: задать переменные в env/.env и перезапустить php-контейнер
 - XDEBUG_MODE=debug
 - XDEBUG_START=yes
-- затем docker compose up -d --no-deps php-apache-tcp
+- затем docker compose up -d --no-deps php-httpd-tcp
 
 IDE: подключение по Xdebug 3 на порт 9003, client_host=host.docker.internal.
 
@@ -135,7 +135,7 @@ $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $user, $pass);
 - Измените привязку в docker-compose.yml, например 8080:80 для Apache.
 
 Контейнеры не стартуют по порядку:
-- Проверьте healthchecks командой docker compose ps; httpd-tcp зависит от healthy php-apache-tcp.
+- Проверьте healthchecks командой docker compose ps; httpd-tcp зависит от healthy php-httpd-tcp.
 
 Xdebug не подключается:
 - Проверьте, что используете порт 9003 в IDE, и что XDEBUG_MODE/START заданы (compose.xdebug.yml или env/.env).

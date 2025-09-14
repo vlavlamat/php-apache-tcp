@@ -1,5 +1,5 @@
 services:
-  php-apache-tcp:
+  php-httpd-tcp:
     environment:
       XDEBUG_MODE: "debug"
       XDEBUG_START: "yes"

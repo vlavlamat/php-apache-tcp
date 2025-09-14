@@ -1,5 +1,5 @@
 # ==========================================
-# PHP-Apache-TCP Development Environment
+# PHP-Httpd-TCP Development Environment
 # ==========================================
 # Современная замена XAMPP/MAMP/OpenServer
 # 
@@ -22,7 +22,7 @@ NC=\033[0m # No Color
 
 # По умолчанию показываем справку
 help: ## Показать справку по командам
-	@echo "$(YELLOW)PHP-Apache-TCP Development Environment$(NC)"
+	@echo "$(YELLOW)PHP-Httpd-TCP Development Environment$(NC)"
 	@echo "======================================"
 	@echo "Современная замена XAMPP/MAMP/OpenServer для изучения PHP"
 	@echo ""
@@ -81,7 +81,7 @@ logs: ## Просмотр логов всех сервисов
 	docker-compose logs -f
 
 logs-php: ## Просмотр логов PHP-FPM
-	docker-compose logs -f php-apache-tcp
+	docker-compose logs -f php-httpd-tcp
 
 logs-httpd: ## Просмотр логов Apache
 	docker-compose logs -f httpd-tcp
@@ -97,7 +97,7 @@ status: ## Показать статус контейнеров
 	@docker-compose ps
 
 shell-php: ## Подключиться к контейнеру PHP
-	docker-compose exec php-apache-tcp sh
+	docker-compose exec php-httpd-tcp sh
 
 shell-httpd: ## Подключиться к контейнеру Apache
 	docker-compose exec httpd-tcp sh
@@ -106,7 +106,7 @@ shell-mysql: ## Подключиться к MySQL CLI
 	docker-compose exec mysql-httpd-tcp mysql -u root -p
 
 info: ## Показать информацию о проекте
-	@echo "$(YELLOW)PHP-Apache-TCP Development Environment$(NC)"
+	@echo "$(YELLOW)PHP-Httpd-TCP Development Environment$(NC)"
 	@echo "======================================"
 	@echo "$(GREEN)Сервисы:$(NC)"
 	@echo "  • PHP-FPM 8.4 (Alpine)"
@@ -162,13 +162,13 @@ permissions: ## Исправить права доступа к файлам п�
 
 # Composer команды
 composer-install: ## Установить зависимости через Composer
-	docker-compose exec php-apache-tcp composer install
+	docker-compose exec php-httpd-tcp composer install
 
 composer-update: ## Обновить зависимости через Composer
-	docker-compose exec php-apache-tcp composer update
+	docker-compose exec php-httpd-tcp composer update
 
 composer-require: ## Установить пакет через Composer (make composer-require PACKAGE=vendor/package)
-	docker-compose exec php-apache-tcp composer require $(PACKAGE)
+	docker-compose exec php-httpd-tcp composer require $(PACKAGE)
 
 # Команда по умолчанию
 .DEFAULT_GOAL := help
