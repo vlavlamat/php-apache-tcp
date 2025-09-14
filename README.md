@@ -35,10 +35,9 @@ php-httpd-tcp/
 │   └── php.Dockerfile          # Образ PHP-FPM 8.4 (Alpine) + расширения + Xdebug + Composer
 ├── docker-compose.yml          # Основной стек: PHP-FPM, Apache, MySQL, phpMyAdmin
 ├── docker-compose.xdebug.yml   # Оверлей для включения Xdebug (mode=start)
-├── docs/
-│   └── enhancement-plan.md     # Идеи по улучшению
 ├── env/
-│   └── .env.example            # Пример переменных окружения (скопируйте в env/.env)
+│   ├── .env.example            # Пример переменных окружения (скопируйте в env/.env)
+│   └── .env                    # Ваши локальные переменные окружения
 └── public/                     # DocumentRoot (будет смонтирован в Apache и PHP-FPM)
     ├── index.html
     ├── index.php
@@ -66,10 +65,10 @@ php-httpd-tcp/
    - MySQL: localhost:3306
 
 Полезные команды Makefile:
-- make setup — создать env/.env из примера
 - make up / make down / make restart — управление стеком
 - make logs / make status — логи и статусы контейнеров
 - make xdebug-up / make xdebug-down — запуск/остановка стека с включённым Xdebug
+- make check-files — проверить, что все нужные файлы на месте
 
 ## Конфигурация
 

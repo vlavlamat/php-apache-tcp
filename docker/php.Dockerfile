@@ -17,10 +17,8 @@ RUN apk add --no-cache \
     fcgi \
     && pecl channel-update pecl.php.net \
     && pecl install xdebug \
-    && docker-php-ext-enable xdebug
-
-# Устанавливаем расширения PHP
-RUN docker-php-ext-install \
+    && docker-php-ext-enable xdebug \
+    && docker-php-ext-install \
     pdo \
     pdo_mysql \
     mysqli \
@@ -28,7 +26,8 @@ RUN docker-php-ext-install \
     xml \
     gd \
     bcmath \
-    zip
+    zip \
+    && apk del $PHPIZE_DEPS
 
 # Устанавливаем Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer

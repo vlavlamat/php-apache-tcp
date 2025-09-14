@@ -12,7 +12,7 @@
 # make clean     - Полная очистка
 # ==========================================
 
-.PHONY: help up down restart build rebuild logs logs-php logs-httpd logs-mysql logs-phpmyadmin status shell-php shell-httpd shell-mysql clean clean-all setup info test
+.PHONY: help up down restart build rebuild logs logs-php logs-httpd logs-mysql logs-phpmyadmin status shell-php shell-httpd shell-mysql clean clean-all setup info test check-files xdebug-up xdebug-down permissions composer-install composer-update composer-require dev-reset
 
 # Цвета для вывода
 YELLOW=\033[0;33m
@@ -33,17 +33,18 @@ help: ## Показать справку по командам
 	@echo "  phpMyAdmin:  http://localhost:8080"
 	@echo "  MySQL:       localhost:3306"
 
-setup: ## Первоначальная настройка проекта
-	@echo "$(YELLOW)Настройка проекта...$(NC)"
-	@if [ ! -f env/.env ]; then \
-		cp env/.env.example env/.env; \
-		echo "$(GREEN)✓ Создан файл env/.env из примера$(NC)"; \
-	else \
-		echo "$(YELLOW)! Файл env/.env уже существует$(NC)"; \
-	fi
-	@echo "$(GREEN)✓ Настройка завершена$(NC)"
+check-files: ## Проверить наличие всех необходимых файлов
+	@echo "$(YELLOW)Проверка файлов конфигурации...$(NC)"
+	@test -f docker-compose.yml || (echo "$(RED)✗ docker-compose.yml не найден$(NC)" && exit 1)
+	@test -f docker-compose.xdebug.yml || (echo "$(RED)✗ docker-compose.xdebug.yml не найден$(NC)" && exit 1)
+	@test -f env/.env || (echo "$(RED)✗ env/.env не найден$(NC)" && exit 1)
+	@test -f docker/php.Dockerfile || (echo "$(RED)✗ docker/php.Dockerfile не найден$(NC)" && exit 1)
+	@test -f config/httpd/httpd.conf || (echo "$(RED)✗ config/httpd/httpd.conf не найден$(NC)" && exit 1)
+	@test -f config/php/php.ini || (echo "$(RED)✗ config/php/php.ini не найден$(NC)" && exit 1)
+	@test -d public/ || (echo "$(RED)✗ директория public/ не найдена$(NC)" && exit 1)
+	@echo "$(GREEN)✓ Все файлы на месте$(NC)"
 
-up: ## Запуск всех сервисов
+up: check-files ## Запуск всех сервисов
 	@echo "$(YELLOW)Запуск сервисов...$(NC)"
 	docker-compose up -d
 	@echo "$(GREEN)✓ Сервисы запущены$(NC)"
@@ -71,11 +72,18 @@ rebuild: ## Пересборка образов с очисткой кэша
 	docker-compose build --no-cache
 	@echo "$(GREEN)✓ Образы пересобраны$(NC)"
 
-xdebug-up: ## Запуск с включенным Xdebug (через docker-compose.xdebug.yml)
+xdebug-up: check-files ## Запуск с включенным Xdebug (через docker-compose.xdebug.yml)
+	@echo "$(YELLOW)Запуск с Xdebug...$(NC)"
 	docker-compose -f docker-compose.yml -f docker-compose.xdebug.yml up -d
+	@echo "$(GREEN)✓ Сервисы с Xdebug запущены$(NC)"
+	@echo "$(YELLOW)Доступные URL:$(NC)"
+	@echo "  Web Server:  http://localhost"
+	@echo "  phpMyAdmin:  http://localhost:8080"
 
 xdebug-down: ## Остановить стек, запущенный с Xdebug
+	@echo "$(YELLOW)Остановка сервисов с Xdebug...$(NC)"
 	docker-compose -f docker-compose.yml -f docker-compose.xdebug.yml down
+	@echo "$(GREEN)✓ Сервисы с Xdebug остановлены$(NC)"
 
 logs: ## Просмотр логов всех сервисов
 	docker-compose logs -f
@@ -146,10 +154,6 @@ clean-all: ## Полная очистка (контейнеры, образы, �
 	docker-compose down --rmi all
 	docker system prune -f
 	@echo "$(GREEN)✓ Выполнена полная очистка$(NC)"
-
-# Дополнительные команды для разработки
-dev-setup: setup up ## Полная настройка для разработки (setup + up)
-	@echo "$(GREEN)✓ Среда разработки готова к работе!$(NC)"
 
 dev-reset: clean-all build up ## Сброс среды разработки
 	@echo "$(GREEN)✓ Среда разработки сброшена и перезапущена!$(NC)"
